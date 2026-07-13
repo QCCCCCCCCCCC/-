@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動抽籤系統</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .floating-text {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #000000;
+            font-weight: bold;
+            white-space: nowrap;
+            user-select: none;
+        }
+        #result-box {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            max-width: 80%;
+            transition: all 0.3s ease;
+        }
+        .hint-text {
+            font-size: 2rem;
+            border: 3px solid #000000;
+            padding: 15px 40px;
+            font-weight: bold;
+            background: #ffffff;
+            letter-spacing: 2px;
+        }
+        .dept-title {
+            font-size: 2rem;
+            font-weight: normal;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        .winner-name {
+            font-size: 4.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="result-box">
+        <div class="hint-text">點擊畫面 或 按「空白鍵」開始抽籤</div>
+    </div>
+
+    <script>
+        const fakeParticipants = [
+            "資工系三A B11001001 王大同", "企管系二B B11102032 李香君",
+            "外文系四A B10903045 張小明", "財金系一C B11204012 陳美麗",
+            "機械系三B B11005088 劉德華", "電機系二A B11106099 林志玲",
+            "法律系四B B10907023 周杰倫", "中文系一A B11208041 蔡依林",
+            "化工系三C B11009055 金城武", "經濟系二B B11110066 郭富城"
+        ];
+
+        // 🎯 在這裡修改您要在 GitHub 上內定的中獎人
+        const winner = { 
+            dept: "資訊管理學系 四年級", 
+            name: "陳冠宇 (B11234567)" 
+        };
+
+        const canvas = document.getElementById('canvas-container');
+        const resultBox = document.getElementById('result-box');
+        let isRunning = false;
+        let animationTimer = null;
+
+        window.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' || event.keyCode === 32) {
+                event.preventDefault();
+                toggleDraw();
+            }
+        });
+
+        window.addEventListener('click', function() {
+            toggleDraw();
+        });
+
+        function createFloatingText() {
+            if (!isRunning) return;
+            const textContent = fakeParticipants[Math.floor(Math.random() * fakeParticipants.length)];
+            const div = document.createElement('div');
+            div.className = 'floating-text';
+            div.innerText = textContent;
+            div.style.left = Math.random() * 85 + 'vw';
+            div.style.top = Math.random() * 92 + 'vh';
+            div.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            div.style.opacity = Math.random() * 0.8 + 0.2;
+            canvas.appendChild(div);
+            setTimeout(() => { div.remove(); }, 250);
+            animationTimer = setTimeout(createFloatingText, 20);
+        }
+
+        function toggleDraw() {
+            if (!isRunning) {
+                isRunning = true;
+                resultBox.style.display = "none"; 
+                canvas.innerHTML = ""; 
+                for(let i = 0; i < 25; i++) { 
+                    setTimeout(createFloatingText, i * 10);
+                }
+            } else {
+                isRunning = false;
+                clearTimeout(animationTimer);
+                canvas.innerHTML = ""; 
+                resultBox.style.display = "block";
+                resultBox.innerHTML = `
+                    <div class="dept-title">🎉 【恭喜中獎】 ${winner.dept}</div>
+                    <div class="winner-name">${winner.name}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
